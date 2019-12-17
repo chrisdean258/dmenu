@@ -52,6 +52,7 @@ static XIC xic;
 
 static Drw *drw;
 static Clr *scheme[SchemeLast];
+static int nocomplete = 0;
 
 #include "config.h"
 
@@ -464,7 +465,7 @@ insert:
 		break;
 	case XK_Return:
 	case XK_KP_Enter:
-		puts((sel && !(ev->state & ShiftMask)) ? sel->text : text);
+		puts((sel && (!(ev->state & ShiftMask)) && !nocomplete) ? sel->text : text);
 		if (!(ev->state & ControlMask)) {
 			cleanup();
 			exit(0);
@@ -712,7 +713,10 @@ main(int argc, char *argv[])
 		else if (!strcmp(argv[i], "-i")) { /* case-insensitive item matching */
 			fstrncmp = strncasecmp;
 			fstrstr = cistrstr;
-		} else if (i + 1 == argc)
+		}
+		else if (!strcmp(argv[i], "--no-complete"))   /* embedding window id */
+			nocomplete = 1;
+		else if (i + 1 == argc)
 			usage();
 		/* these options take one argument */
 		else if (!strcmp(argv[i], "-l"))   /* number of lines in vertical list */
